@@ -4,17 +4,18 @@ import generateQRCode, {
   ErrorCorrectionLevel,
 } from "@/app/_components/generate-qr-code";
 import QrSvg from "@/app/_components/render-qr-code";
-import React from "react";
+import React, { useDeferredValue } from "react";
 
 export default function QrZone() {
   const [text, setText] = React.useState("Truchet tiling");
+  const deferredText = useDeferredValue(text);
   const [errorCorrectionLevel, setErrorCorrectionLevel] =
     React.useState<ErrorCorrectionLevel>("L");
   return (
     <>
       <div style={{ height: 500, width: 500 }}>
-        {text ? (
-          <QrSvg qr={generateQRCode(text, errorCorrectionLevel)} />
+        {deferredText ? (
+          <QrSvg qr={generateQRCode(deferredText, errorCorrectionLevel)} />
         ) : (
           <p>No text entered</p>
         )}
