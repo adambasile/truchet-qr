@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main>
-      <div>Truchet tiled QR code generator</div>
+      <h1>Truchet tiled QR code generator</h1>
     </main>
   );
 }
