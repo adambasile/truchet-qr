@@ -1,13 +1,14 @@
 import { QrModules } from "@/app/_components/generate-qr-code";
+import React, { useMemo } from "react";
 
 type Props = {
   qr: QrModules;
-  totalSize?: number; // total pixel size of the QR code
-  margin?: number; // modules of quiet zone
+  totalSize?: number;
+  margin?: number;
   className?: string;
 };
 
-export default function QrSvg({
+const QrSvg = React.memo(function QrSvg({
   qr,
   totalSize = 500,
   margin = 4,
@@ -52,7 +53,9 @@ export default function QrSvg({
       </g>
     </svg>
   );
-}
+});
+
+export default QrSvg;
 
 type TileProps = {
   x: number;
@@ -63,13 +66,23 @@ type TileProps = {
   plain?: boolean;
 };
 
-function Tile({ x, y, scale, isDark, even, plain = false }: TileProps) {
+const Tile = React.memo(function Tile({
+  x,
+  y,
+  scale,
+  isDark,
+  even,
+  plain = false,
+}: TileProps) {
   const main = isDark ? "#000" : "#FFF";
   const highlight = isDark ? "#FFF" : "#000";
-  const quarters: Quarter[] =
-    even != isDark
+
+  const quarters = useMemo<Quarter[]>(() => {
+    return even !== isDark
       ? ["top-left", "bottom-right"]
       : ["top-right", "bottom-left"];
+  }, [even, isDark]);
+
   return (
     <>
       <rect x={x} y={y} width={scale} height={scale} fill={main} />
@@ -86,7 +99,14 @@ function Tile({ x, y, scale, isDark, even, plain = false }: TileProps) {
         ))}
     </>
   );
-}
+});
+
+const rotationMap: Record<Quarter, number> = {
+  "top-left": 0,
+  "top-right": 90,
+  "bottom-right": 180,
+  "bottom-left": 270,
+};
 
 type Quarter = "top-left" | "top-right" | "bottom-right" | "bottom-left";
 
@@ -98,7 +118,7 @@ interface QuarterCircleProps {
   fill?: string;
 }
 
-export function QuarterCircle({
+const QuarterCircle = React.memo(function QuarterCircle({
   position,
   x,
   y,
@@ -109,15 +129,10 @@ export function QuarterCircle({
   const centerX = x + r;
   const centerY = y + r;
 
-  // base path = top-left quarter
-  const d = `M${x + r} ${y} A${r} ${r} 0 0 1 ${x} ${y + r} L${x} ${y} Z`;
-
-  const rotationMap: Record<Quarter, number> = {
-    "top-left": 0,
-    "top-right": 90,
-    "bottom-right": 180,
-    "bottom-left": 270,
-  };
+  const d = useMemo(
+    () => `M${x + r} ${y} A${r} ${r} 0 0 1 ${x} ${y + r} L${x} ${y} Z`,
+    [x, y, r],
+  );
 
   const rotation = rotationMap[position];
 
@@ -128,4 +143,4 @@ export function QuarterCircle({
       transform={`rotate(${rotation} ${centerX} ${centerY})`}
     />
   );
-}
+});
