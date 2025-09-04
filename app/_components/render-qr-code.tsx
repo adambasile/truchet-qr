@@ -13,7 +13,7 @@ export default function QrSvg({
   margin = 4,
   className,
 }: Props) {
-  const { size, data } = qr;
+  const { size, data, reserved } = qr;
   const totalMemberSize = size + margin * 2;
   const scale = totalSize / totalMemberSize;
 
@@ -34,16 +34,17 @@ export default function QrSvg({
         {Array.from({ length: size }).map((_, col) =>
           Array.from({ length: size }).map((__, row) => {
             // pixel at column j (col), row x (row) is stored at data[row + col * size]
-            const idx = row + col * size;
+            const idx = col + row * size;
             const isDark = data[idx];
             return (
               <Tile
                 key={`${col}-${row}`}
                 x={col * scale}
                 y={row * scale}
-                width={scale}
-                height={scale}
+                scale={scale}
                 isDark={isDark}
+                even={idx % 2 === 0}
+                plain={reserved[idx]}
               />
             );
           }),
@@ -56,19 +57,75 @@ export default function QrSvg({
 type TileProps = {
   x: number;
   y: number;
-  width: number;
-  height: number;
+  scale: number;
   isDark: boolean;
+  even: boolean;
+  plain?: boolean;
 };
 
-function Tile({ x, y, width, height, isDark }: TileProps) {
+function Tile({ x, y, scale, isDark, even, plain = false }: TileProps) {
+  const main = isDark ? "#000" : "#FFF";
+  const highlight = isDark ? "#FFF" : "#000";
+  const quarters: Quarter[] =
+    even != isDark
+      ? ["top-left", "bottom-right"]
+      : ["top-right", "bottom-left"];
   return (
-    <rect
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      fill={isDark ? "#000" : "#FFF"}
+    <>
+      <rect x={x} y={y} width={scale} height={scale} fill={main} />
+      {!plain &&
+        quarters.map((q, i) => (
+          <QuarterCircle
+            key={i}
+            position={q}
+            x={x}
+            y={y}
+            scale={scale}
+            fill={highlight}
+          />
+        ))}
+    </>
+  );
+}
+
+type Quarter = "top-left" | "top-right" | "bottom-right" | "bottom-left";
+
+interface QuarterCircleProps {
+  position: Quarter;
+  x: number;
+  y: number;
+  scale: number;
+  fill?: string;
+}
+
+export function QuarterCircle({
+  position,
+  x,
+  y,
+  scale,
+  fill,
+}: QuarterCircleProps) {
+  const r = scale / 2;
+  const centerX = x + r;
+  const centerY = y + r;
+
+  // base path = top-left quarter
+  const d = `M${x + r} ${y} A${r} ${r} 0 0 1 ${x} ${y + r} L${x} ${y} Z`;
+
+  const rotationMap: Record<Quarter, number> = {
+    "top-left": 0,
+    "top-right": 90,
+    "bottom-right": 180,
+    "bottom-left": 270,
+  };
+
+  const rotation = rotationMap[position];
+
+  return (
+    <path
+      d={d}
+      fill={fill}
+      transform={`rotate(${rotation} ${centerX} ${centerY})`}
     />
   );
 }
