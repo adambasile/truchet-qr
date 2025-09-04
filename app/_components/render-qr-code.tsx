@@ -2,14 +2,20 @@ import { QrModules } from "@/app/_components/generate-qr-code";
 
 type Props = {
   qr: QrModules;
-  scale?: number; // pixels per module
+  totalSize?: number; // total pixel size of the QR code
   margin?: number; // modules of quiet zone
   className?: string;
 };
 
-export default function QrSvg({ qr, scale = 8, margin = 4, className }: Props) {
+export default function QrSvg({
+  qr,
+  totalSize = 500,
+  margin = 4,
+  className,
+}: Props) {
   const { size, data } = qr;
-  const totalSize = size * scale + margin * 2 * scale;
+  const totalMemberSize = size + margin * 2;
+  const scale = totalSize / totalMemberSize;
 
   return (
     <svg

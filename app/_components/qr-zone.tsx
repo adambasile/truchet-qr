@@ -12,7 +12,7 @@ export default function QrZone() {
     React.useState<ErrorCorrectionLevel>("L");
   return (
     <>
-      <div>
+      <div style={{ height: 500, width: 500 }}>
         {text ? (
           <QrSvg qr={generateQRCode(text, errorCorrectionLevel)} />
         ) : (
