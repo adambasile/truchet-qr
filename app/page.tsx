@@ -1,7 +1,7 @@
-import {Metadata} from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: 'Truchet Tiled QR code generator'
+  title: "Truchet Tiled QR code generator",
 };
 
 export default function Home() {
