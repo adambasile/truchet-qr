@@ -1,11 +1,14 @@
 import { QrModules } from "@/app/_components/generate-qr-code";
 import React, { useMemo } from "react";
 
+export type QrKind = "plain" | "truchet" | "full-truchet";
+
 type Props = {
   qr: QrModules;
   totalSize?: number;
   margin?: number;
   className?: string;
+  kind: QrKind;
 };
 
 const QrSvg = React.memo(function QrSvg({
@@ -13,6 +16,7 @@ const QrSvg = React.memo(function QrSvg({
   totalSize = 500,
   margin = 4,
   className,
+  kind,
 }: Props) {
   const { size, data, reserved } = qr;
   const totalMemberSize = size + margin * 2;
@@ -45,7 +49,9 @@ const QrSvg = React.memo(function QrSvg({
                 scale={scale}
                 isDark={isDark}
                 even={idx % 2 === 0}
-                plain={reserved[idx]}
+                plain={
+                  kind === "plain" || (kind !== "full-truchet" && reserved[idx])
+                }
               />
             );
           }),
